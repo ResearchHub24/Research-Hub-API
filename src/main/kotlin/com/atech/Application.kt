@@ -18,6 +18,7 @@ fun Application.module() {
     configureSerialization()
     configureMonitoring()
     allRoutes()
+
 }
 
 private fun Application.setUpFirebaseSDK() {

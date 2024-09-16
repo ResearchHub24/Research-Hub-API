@@ -1,10 +1,11 @@
 package com.atech.plugins
 
 import com.atech.firebase.FirebaseInstance
-import com.atech.firebase.GetUserDetailUserCase
-import com.atech.firebase.UpdateUserDetailUserCase
+import com.atech.firebase.GetUserDetailUseCase
+import com.atech.firebase.LogInUseCase
+import com.atech.firebase.UpdateUserDetailUseCase
 import com.atech.model.UpdateQueryUser
-import com.atech.utils.RatesPaths
+import com.atech.utils.RoutePaths
 import com.google.cloud.firestore.WriteResult
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -37,7 +38,8 @@ data class SuccessResponse(val message: String)
 
 fun Application.allRoutes() {
     configureRouting()
-    postUserDetails()
+    userDetails()
+    logIn()
 }
 
 fun Application.configureRouting() {
@@ -49,10 +51,10 @@ fun Application.configureRouting() {
 }
 
 
-fun Application.postUserDetails() {
+fun Application.userDetails() {
     routing {
-        get("${RatesPaths.POST_USER_DETAILS.path}/{userId}") {
-            val getUser = GetUserDetailUserCase(
+        get("${RoutePaths.POST_USER_DETAILS.path}/{userId}") {
+            val getUser = GetUserDetailUseCase(
                 fb = FirebaseInstance.getFirebaseFireStore()
             )
             val errorMessage = ErrorResponse("error: User ID is missing")
@@ -79,7 +81,7 @@ fun Application.postUserDetails() {
 }
 
 private fun updateUserDetails(routing: Routing, application: Application) {
-    routing.post("${RatesPaths.POST_USER_DETAILS.path}/{userId}/update") {
+    routing.post("${RoutePaths.POST_USER_DETAILS.path}/{userId}/update") {
         val userID = call.parameters["userId"]
         if (userID.isNullOrEmpty() || userID.length < 5) {
             call.respond(
@@ -87,7 +89,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 message = ErrorResponse("error: User ID is missing")
             )
         }
-        val getUser = GetUserDetailUserCase(
+        val getUser = GetUserDetailUseCase(
             fb = FirebaseInstance.getFirebaseFireStore()
         )
         val user = getUser(userID!!)
@@ -117,7 +119,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (passWord != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.PasswordParam, passWord)
@@ -125,7 +127,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (userType != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.UserTypeParam, userType)
@@ -133,7 +135,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (phone != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.PhoneParam, phone)
@@ -141,7 +143,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (educationDetails != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.EducationDetailsParam, educationDetails)
@@ -149,7 +151,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (skillList != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.SkillListParam, skillList)
@@ -157,7 +159,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (filledForm != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.FilledFormParam, filledForm)
@@ -165,7 +167,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (selectedForm != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.SelectedFormParam, selectedForm)
@@ -173,7 +175,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (verified != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.VerifiedParam, verified.toBoolean())
@@ -181,7 +183,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                 }
                 if (links != null) {
                     deferred.plus(application.async {
-                        val update = UpdateUserDetailUserCase(
+                        val update = UpdateUserDetailUseCase(
                             fb = FirebaseInstance.getFirebaseFireStore()
                         )
                         update(userID, UpdateQueryUser.LinksParam, links)
@@ -194,6 +196,34 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                     status = HttpStatusCode.BadRequest,
                     message = ErrorResponse("error: ${e.message}")
                 )
+            }
+        }
+    }
+}
+
+fun Application.logIn() {
+    routing {
+        post(RoutePaths.LOGIN.path) {
+            val email = call.request.queryParameters["email"]
+            val password = call.request.queryParameters["password"]
+            if (email.isNullOrEmpty() || password.isNullOrEmpty()) {
+                call.respond(
+                    status = HttpStatusCode.BadRequest,
+                    message = ErrorResponse("error: User ID is missing")
+                )
+                return@post
+            }
+            val getUser = LogInUseCase(
+                db = FirebaseInstance.getFirebaseFireStore()
+            )
+            val user = getUser(email = email, password = password)
+            if (user == null) {
+                call.respond(
+                    status = HttpStatusCode.BadRequest,
+                    message = ErrorResponse("error: User not found or password is incorrect")
+                )
+            } else {
+                call.respond(HttpStatusCode.OK, SuccessResponse(user.uid!!))
             }
         }
     }

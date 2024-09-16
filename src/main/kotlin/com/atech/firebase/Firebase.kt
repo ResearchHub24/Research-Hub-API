@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-data class GetUserDetailUserCase(
+data class GetUserDetailUseCase(
     private val fb: Firestore
 ) {
     suspend operator fun invoke(uid: String) =
@@ -28,7 +28,7 @@ data class GetUserDetailUserCase(
 }
 
 
-data class UpdateUserDetailUserCase(
+data class UpdateUserDetailUseCase(
     val fb: Firestore
 ) {
     suspend inline operator fun <reified T : Any> invoke(
@@ -49,6 +49,23 @@ data class UpdateUserDetailUserCase(
         }
 }
 
+data class LogInUseCase(
+    val db: Firestore
+) {
+    suspend operator fun invoke(email: String, password: String): UserModel? =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.USERS.path)
+                .whereEqualTo("email", email)
+                .whereEqualTo("password", password)
+                .get()
+                .get()
+                .toObjects(UserModel::class.java)
+                .getOrNull(0)
+        }
+}
+
 
 fun main() = runBlocking {
     val serviceAccountStream = this::class.java.classLoader.getResourceAsStream("serviceAccountKey.json")
@@ -58,7 +75,7 @@ fun main() = runBlocking {
         .build()
     FirebaseApp.initializeApp(option)
     val fb = FirebaseInstance.getFirebaseFireStore()
-    val getUserDetailUserCase = GetUserDetailUserCase(fb)
+    val getUserDetailUserCase = GetUserDetailUseCase(fb)
     val user = getUserDetailUserCase.invoke("TF6YASVgyRQmytXTQRVm2c5NS2I2")
     println(user)
 }
