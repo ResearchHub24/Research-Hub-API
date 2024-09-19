@@ -40,6 +40,7 @@ fun Application.allRoutes() {
     configureRouting()
     userDetails()
     logIn()
+    researchRouting()
 }
 
 fun Application.configureRouting() {

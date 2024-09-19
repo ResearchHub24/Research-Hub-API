@@ -1,5 +1,6 @@
 package com.atech.firebase
 
+import com.atech.model.ResearchModel
 import com.atech.model.UpdateQueryUser
 import com.atech.model.UserModel
 import com.atech.utils.FirebaseCollectionPath
@@ -63,6 +64,51 @@ data class LogInUseCase(
                 .get()
                 .toObjects(UserModel::class.java)
                 .getOrNull(0)
+        }
+}
+
+data class GetAllResearchUseCase(
+    val db: Firestore
+) {
+    suspend operator fun invoke(): List<ResearchModel> =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.RESEARCH.path)
+                .get()
+                .get()
+                .toObjects(ResearchModel::class.java)
+        }
+}
+
+data class PostResearchUseCase(
+    val db: Firestore
+) {
+    suspend operator fun invoke(research: ResearchModel): String =
+        withContext(Dispatchers.IO) {
+            val ref = db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.RESEARCH.path)
+                .document()
+            ref.set(research.copy(path = ref.id)).get()
+            ref.id
+        }
+}
+
+data class GetPostedResearchUseCase(
+    val db: Firestore
+) {
+    suspend operator fun invoke(
+        authorUid: String
+    ): List<ResearchModel> =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.RESEARCH.path)
+                .whereEqualTo("authorUid", authorUid)
+                .get()
+                .get()
+                .toObjects(ResearchModel::class.java)
         }
 }
 
