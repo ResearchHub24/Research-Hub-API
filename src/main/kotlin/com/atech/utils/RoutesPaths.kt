@@ -7,5 +7,6 @@ enum class RoutePaths(val path: String) {
     LOGIN("$BASE/login"),
     ALL_RESEARCH("$BASE/research"),
     POST_RESEARCH("$BASE/research/post"),
+    TAGS("${ALL_RESEARCH.path}/tags"),
 }
 

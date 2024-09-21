@@ -12,19 +12,19 @@ import io.ktor.server.routing.*
 
 fun Application.researchRouting() {
     routing {
-        get("${RoutePaths.ALL_RESEARCH.path}/{researchId}") {
-            /**
-             * Get research by research ID
-             */
-            val researchId = call.parameters["researchId"]
-            if (researchId == null) {
-                call.respond(
-                    status = HttpStatusCode.BadRequest, message = ErrorResponse("{error: Research ID is missing}")
-                )
-                return@get
-            }
-            call.respond(HttpStatusCode.OK, "Research ID: $researchId")
-        }
+//        get("${RoutePaths.ALL_RESEARCH.path}/{researchId}") {
+//            /**
+//             * Get research by research ID
+//             */
+//            val researchId = call.parameters["researchId"]
+//            if (researchId == null) {
+//                call.respond(
+//                    status = HttpStatusCode.BadRequest, message = ErrorResponse("{error: Research ID is missing}")
+//                )
+//                return@get
+//            }
+//            call.respond(HttpStatusCode.OK, "Research ID: $researchId")
+//        }
 
         get(RoutePaths.ALL_RESEARCH.path) {
             /**
