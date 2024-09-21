@@ -25,25 +25,21 @@ fun Application.tagRouting() {
         }
 
         post(RoutePaths.TAGS.path) {
-            val tag = call.receive<TagModel>()
             try {
+                val tag = call.receive<TagModel>()
                 AddTagUseCase().invoke(tag)
                 call.respond(HttpStatusCode.OK, "Tag added successfully")
             } catch (e: ContentTransformationException) {
                 // Handle case where the request body couldn't be transformed into ResearchModel
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse("{error: Invalid or missing ResearchModel in the request body}")
+                    "Invalid or missing ResearchModel in the request body"
                 )
             } catch (e: Exception) {
                 // Handle general errors
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    ErrorResponse("{error: ${e.message}}")
-                )
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError, message = ErrorResponse("{error: ${e.message}}")
+                    "Error: ${e.message}"
                 )
             }
         }
@@ -53,17 +49,23 @@ fun Application.tagRouting() {
             if (id == null) {
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    ErrorResponse("{error: Missing id parameter}")
+                    "{error: Missing id parameter}"
                 )
                 return@delete
             }
             try {
                 DeleteTagUseCase().invoke(id)
-                call.respond(HttpStatusCode.OK, SuccessResponse("Tag deleted successfully"))
+                call.respond(HttpStatusCode.OK, "Tag deleted successfully")
+            } catch (e: ContentTransformationException) {
+                // Handle case where the request body couldn't be transformed into ResearchModel
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse("{error: Invalid or missing ResearchModel in the request body}")
+                )
             } catch (e: Exception) {
                 call.respond(
                     HttpStatusCode.InternalServerError,
-                    ErrorResponse("{error: ${e.message}}")
+                    "{error: ${e.message}}"
                 )
             }
         }
