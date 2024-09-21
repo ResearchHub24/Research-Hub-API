@@ -113,6 +113,23 @@ data class GetPostedResearchUseCase(
 }
 
 
+data class UpdateResearchUseCase(
+    val db: Firestore
+) {
+    suspend operator fun invoke(
+        research: ResearchModel
+    ): String =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.RESEARCH.path)
+                .document(research.path)
+                .set(research)
+                .get()
+            research.path
+        }
+}
+
 fun main() = runBlocking {
     val serviceAccountStream = this::class.java.classLoader.getResourceAsStream("serviceAccountKey.json")
     val option = FirebaseOptions.builder()
