@@ -225,7 +225,7 @@ fun Application.logIn() {
                     message = ErrorResponse("error: User not found or password is incorrect")
                 )
             } else {
-                call.respond(HttpStatusCode.OK, SuccessResponse("${user.uid}$${user.userType}"))
+                call.respond(HttpStatusCode.OK, user)
             }
         }
     }
