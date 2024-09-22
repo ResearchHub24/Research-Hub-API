@@ -1,6 +1,9 @@
 package com.atech
 
-import com.atech.plugins.*
+import com.atech.plugins.allRoutes
+import com.atech.plugins.configureCaching
+import com.atech.plugins.configureMonitoring
+import com.atech.plugins.configureSerialization
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -15,6 +18,7 @@ fun main() {
 
 fun Application.module() {
     setUpFirebaseSDK()
+    configureCaching()
     configureSerialization()
     configureMonitoring()
     allRoutes()
