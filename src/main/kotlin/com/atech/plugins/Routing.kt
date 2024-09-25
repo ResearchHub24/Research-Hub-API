@@ -4,16 +4,17 @@ import com.atech.firebase.FirebaseInstance
 import com.atech.firebase.GetUserDetailUseCase
 import com.atech.firebase.LogInUseCase
 import com.atech.firebase.UpdateUserDetailUseCase
+import com.atech.model.EducationDetails
+import com.atech.model.FilledForm
 import com.atech.model.UpdateQueryUser
 import com.atech.utils.RoutePaths
+import com.atech.utils.fromJson
 import com.google.cloud.firestore.WriteResult
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 
@@ -88,117 +89,58 @@ private fun updateUserDetails(routing: Routing, application: Application) {
         if (userID.isNullOrEmpty() || userID.length < 5) {
             call.respond(
                 status = HttpStatusCode.BadRequest,
-                message = ErrorResponse("error: User ID is missing")
+                message = ErrorResponse("error: User ID is missing or invalid")
             )
+            return@post
         }
-        val getUser = GetUserDetailUseCase(
-            fb = FirebaseInstance.getFirebaseFireStore()
-        )
-        val user = getUser(userID!!)
+
+        val getUser = GetUserDetailUseCase(fb = FirebaseInstance.getFirebaseFireStore())
+        val user = getUser(userID)
         if (user == null) {
             call.respond(
                 status = HttpStatusCode.NotFound,
                 message = ErrorResponse("error: User not found")
             )
+            return@post
         }
-        val passWord = call.request.queryParameters[UpdateQueryUser.PasswordParam.query]
-        val userType = call.request.queryParameters[UpdateQueryUser.UserTypeParam.query]
-        val phone = call.request.queryParameters[UpdateQueryUser.PhoneParam.query]
-        val educationDetails = call.request.queryParameters[UpdateQueryUser.EducationDetailsParam.query]
-        val skillList = call.request.queryParameters[UpdateQueryUser.SkillListParam.query]
-        val filledForm = call.request.queryParameters[UpdateQueryUser.FilledFormParam.query]
-        val selectedForm = call.request.queryParameters[UpdateQueryUser.SelectedFormParam.query]
-        val verified = call.request.queryParameters[UpdateQueryUser.VerifiedParam.query]
-        val links = call.request.queryParameters[UpdateQueryUser.LinksParam.query]
-        coroutineScope {
-            val deferred: MutableList<Deferred<WriteResult>> = mutableListOf()
-            try {
-                if (userID.isEmpty() || userID.length < 5) {
-                    call.respond(
-                        status = HttpStatusCode.BadRequest,
-                        message = ErrorResponse("{error: User ID is missing}")
-                    )
+
+        val update = UpdateUserDetailUseCase(fb = FirebaseInstance.getFirebaseFireStore())
+        val updateResults = mutableListOf<Result<WriteResult>?>()
+
+        try {
+            coroutineScope {
+                listOf(
+                    UpdateQueryUser.PasswordParam to call.request.queryParameters[UpdateQueryUser.PasswordParam.query],
+                    UpdateQueryUser.UserTypeParam to call.request.queryParameters[UpdateQueryUser.UserTypeParam.query],
+                    UpdateQueryUser.PhoneParam to call.request.queryParameters[UpdateQueryUser.PhoneParam.query],
+                    UpdateQueryUser.VerifiedParam to call.request.queryParameters[UpdateQueryUser.VerifiedParam.query]?.toBoolean(),
+                    UpdateQueryUser.EducationDetailsParam to call.request.queryParameters[UpdateQueryUser.EducationDetailsParam.query]?.fromJson<List<EducationDetails>>(),
+                    UpdateQueryUser.SkillListParam to call.request.queryParameters[UpdateQueryUser.SkillListParam.query]?.fromJson<List<String>>(),
+                    UpdateQueryUser.FilledFormParam to call.request.queryParameters[UpdateQueryUser.FilledFormParam.query]?.fromJson<List<FilledForm>>(),
+                    UpdateQueryUser.SelectedFormParam to call.request.queryParameters[UpdateQueryUser.SelectedFormParam.query]?.fromJson<List<String>>(),
+                    UpdateQueryUser.LinksParam to call.request.queryParameters[UpdateQueryUser.LinksParam.query]?.fromJson<List<String>>()
+                ).forEach { (param, value) ->
+                    if (value != null) {
+                        val result = async { update(userID, param, value) }
+                        updateResults.add(result.await())
+                    }
                 }
-                if (passWord != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.PasswordParam, passWord)
-                    })
-                }
-                if (userType != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.UserTypeParam, userType)
-                    })
-                }
-                if (phone != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.PhoneParam, phone)
-                    })
-                }
-                if (educationDetails != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.EducationDetailsParam, educationDetails)
-                    })
-                }
-                if (skillList != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.SkillListParam, skillList)
-                    })
-                }
-                if (filledForm != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.FilledFormParam, filledForm)
-                    })
-                }
-                if (selectedForm != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.SelectedFormParam, selectedForm)
-                    })
-                }
-                if (verified != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.VerifiedParam, verified.toBoolean())
-                    })
-                }
-                if (links != null) {
-                    deferred.plus(application.async {
-                        val update = UpdateUserDetailUseCase(
-                            fb = FirebaseInstance.getFirebaseFireStore()
-                        )
-                        update(userID, UpdateQueryUser.LinksParam, links)
-                    })
-                }
-                deferred.awaitAll()
-                call.respond(HttpStatusCode.OK, SuccessResponse("User details updated successfully for $userID"))
-            } catch (e: Exception) {
+            }
+
+            val errors = updateResults.mapNotNull { it?.exceptionOrNull()?.message }
+            if (errors.isNotEmpty()) {
                 call.respond(
                     status = HttpStatusCode.BadRequest,
-                    message = ErrorResponse("error: ${e.message}")
+                    message = ErrorResponse("Errors occurred during update: ${errors.joinToString("; ")}")
                 )
+            } else {
+                call.respond(HttpStatusCode.OK, SuccessResponse("User details updated successfully for $userID"))
             }
+        } catch (e: Exception) {
+            call.respond(
+                status = HttpStatusCode.InternalServerError,
+                message = ErrorResponse("Error occurred during update: ${e.message}")
+            )
         }
     }
 }

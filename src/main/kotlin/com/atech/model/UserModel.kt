@@ -1,6 +1,7 @@
 package com.atech.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 @Serializable
@@ -19,15 +20,41 @@ data class UserModel(
     val phone: String? = null,
     val userType: String? = UserType.STUDENT.name,
 //    Student
-    val educationDetails: String? = null,
-    val skillList: String? = null,
-    val filledForm: String? = null,
-    val selectedForm: String? = null,
+    val educationDetails: List<EducationDetails>? = null,
+    val skillList: List<String>? = null,
+    val filledForm: List<FilledForm>? = null,
+    val selectedForm: List<String>? = null,
 //    Teacher
-    val verified: Boolean? = false,
-    val links: String? = null,
+    val verified: Boolean = false,
+    val links: List<String>? = null,
 )
 
+@Serializable
+data class EducationDetails(
+    val university: String = "",
+    val degree: String = "",
+    val fieldOfStudy: String = "",
+    val startYear: String = "",
+    val endYear: String = "",
+    val grade: String = "",
+    val description: String = "",
+)
+
+
+@Serializable
+data class FilledForm(
+    val formId: String = "",
+    val answers: List<Answer> = emptyList(),
+)
+
+@Serializable
+data class Answer(
+    val question: String = "",
+    val answer: String = "",
+)
+
+@SuppressWarnings("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST")
 sealed class UpdateQueryUser<out T : Any>(
     val query: String,
     val type: KClass<@UnsafeVariance T>
@@ -35,10 +62,14 @@ sealed class UpdateQueryUser<out T : Any>(
     data object PasswordParam : UpdateQueryUser<String>("password", String::class)
     data object UserTypeParam : UpdateQueryUser<String>("userType", String::class)
     data object PhoneParam : UpdateQueryUser<String>("phone", String::class)
-    data object EducationDetailsParam : UpdateQueryUser<String>("educationDetails", String::class)
-    data object SkillListParam : UpdateQueryUser<String>("skillList", String::class)
-    data object FilledFormParam : UpdateQueryUser<String>("filledForm", String::class)
-    data object SelectedFormParam : UpdateQueryUser<String>("selectedForm", String::class)
+    data object EducationDetailsParam :
+        UpdateQueryUser<List<EducationDetails>>("educationDetails", List::class as KClass<List<EducationDetails>>)
+
+    data object SkillListParam : UpdateQueryUser<List<String>>("skillList", List::class as KClass<List<String>>)
+    data object FilledFormParam :
+        UpdateQueryUser<List<FilledForm>>("filledForm", List::class as KClass<List<FilledForm>>)
+
+    data object SelectedFormParam : UpdateQueryUser<List<String>>("selectedForm", List::class as KClass<List<String>>)
     data object VerifiedParam : UpdateQueryUser<Boolean>("verified", Boolean::class)
-    data object LinksParam : UpdateQueryUser<String>("links", String::class)
+    data object LinksParam : UpdateQueryUser<List<String>>("links", List::class as KClass<List<String>>)
 }

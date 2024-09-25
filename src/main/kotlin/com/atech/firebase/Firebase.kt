@@ -13,6 +13,7 @@ import com.google.firebase.FirebaseOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlin.reflect.KClass
 
 data class GetUserDetailUseCase(
     private val fb: Firestore
@@ -36,18 +37,35 @@ data class UpdateUserDetailUseCase(
         uid: String,
         parameter: UpdateQueryUser<Any>,
         value: T
-    ): WriteResult? =
+    ): Result<WriteResult>? =
         withContext(Dispatchers.IO) {
-            if (value::class != parameter.type) {
-                throw IllegalArgumentException("Type mismatch for ${parameter.query} and ${value::class} expected ${parameter.type}")
+            try {
+                if (!isTypeMatch(parameter.type, value)) {
+                    return@withContext Result.failure(
+                        IllegalArgumentException("Type mismatch for ${parameter.query}: expected ${parameter.type}, got ${value::class}")
+                    )
+                }
+
+                val result = fb.collection(FirebaseCollectionPath.BASE.path)
+                    .document(FirebaseDocumentPath.V1.path)
+                    .collection(FirebaseCollectionPath.USERS.path)
+                    .document(uid)
+                    .update(parameter.query, value)
+                    .get()
+
+                Result.success(result)
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-            fb.collection(FirebaseCollectionPath.BASE.path)
-                .document(FirebaseDocumentPath.V1.path)
-                .collection(FirebaseCollectionPath.USERS.path)
-                .document(uid)
-                .update(parameter.query, value)
-                .get()
         }
+
+    fun isTypeMatch(parameterType: KClass<*>, value: Any): Boolean {
+        return when {
+            parameterType == List::class && value is List<*> -> true
+            parameterType == value::class -> true
+            else -> false
+        }
+    }
 }
 
 data class LogInUseCase(
@@ -127,6 +145,22 @@ data class UpdateResearchUseCase(
                 .set(research)
                 .get()
             research.path
+        }
+}
+
+data class DeleteResearchUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend operator fun invoke(
+        researchId: String
+    ): WriteResult? =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.RESEARCH.path)
+                .document(researchId)
+                .delete()
+                .get()
         }
 }
 

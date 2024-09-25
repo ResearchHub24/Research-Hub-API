@@ -3,7 +3,6 @@ package com.atech.plugins
 import com.atech.firebase.*
 import com.atech.model.ResearchModel
 import com.atech.utils.RoutePaths
-import com.atech.utils.fromJson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -48,6 +47,7 @@ fun Application.researchRouting() {
                 )
 
             } catch (e: Exception) {
+                System.err.println("Error: ${e.message}")
                 call.respond(
                     status = HttpStatusCode.InternalServerError, message = ErrorResponse("{error: ${e.message}}")
                 )
@@ -66,7 +66,7 @@ fun Application.researchRouting() {
                         ).invoke(model)
                     )
                 )
-            }  catch (e: ContentTransformationException) {
+            } catch (e: ContentTransformationException) {
                 // Handle case where the request body couldn't be transformed into ResearchModel
                 call.respond(
                     HttpStatusCode.BadRequest,
@@ -98,6 +98,36 @@ fun Application.researchRouting() {
                     HttpStatusCode.BadRequest,
                     ErrorResponse("{error: Invalid or missing ResearchModel in the request body}")
                 )
+            } catch (e: Exception) {
+                // Handle general errors
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    ErrorResponse("{error: ${e.message}}")
+                )
+            }
+        }
+
+        delete(RoutePaths.DELETE_RESEARCH.path) {
+            try {
+                // Get the research ID from the request parameters
+                val researchId = call.request.queryParameters["researchId"]
+
+                // Check if the research ID is missing
+                if (researchId == null) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        ErrorResponse("{error: Research ID is missing}")
+                    )
+                    return@delete
+                }
+
+                // Perform the delete operation
+                val delete = DeleteResearchUseCase(
+                    db = FirebaseInstance.getFirebaseFireStore()
+                ).invoke(researchId)
+
+                // Send a success response with the deleted data
+                call.respond(HttpStatusCode.OK, SuccessResponse("Research deleted successfully"))
             } catch (e: Exception) {
                 // Handle general errors
                 call.respond(
