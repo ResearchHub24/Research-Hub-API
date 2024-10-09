@@ -1,7 +1,6 @@
 package com.atech.model
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 @Serializable
@@ -26,7 +25,7 @@ data class UserModel(
     val selectedForm: List<String>? = null,
 //    Teacher
     val verified: Boolean = false,
-    val links: List<String>? = null,
+    val links: List<LinkModel>? = null,
 )
 
 @Serializable
@@ -35,11 +34,19 @@ data class EducationDetails(
     val degree: String = "",
     val fieldOfStudy: String = "",
     val startYear: String = "",
-    val endYear: String = "",
-    val grade: String = "",
+    val endYear: String? = "",
+    val grade: String? = "",
     val description: String = "",
+    val created: Long? = null
 )
 
+
+@Serializable
+data class LinkModel(
+    val link: String = "",
+    val description: String = "",
+    val created: Long = System.currentTimeMillis(),
+)
 
 @Serializable
 data class FilledForm(
@@ -71,5 +78,5 @@ sealed class UpdateQueryUser<out T : Any>(
 
     data object SelectedFormParam : UpdateQueryUser<List<String>>("selectedForm", List::class as KClass<List<String>>)
     data object VerifiedParam : UpdateQueryUser<Boolean>("verified", Boolean::class)
-    data object LinksParam : UpdateQueryUser<List<String>>("links", List::class as KClass<List<String>>)
+    data object LinksParam : UpdateQueryUser<List<LinkModel>>("links", List::class as KClass<List<LinkModel>>)
 }

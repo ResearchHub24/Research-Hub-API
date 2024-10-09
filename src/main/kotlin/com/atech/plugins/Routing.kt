@@ -6,6 +6,7 @@ import com.atech.firebase.LogInUseCase
 import com.atech.firebase.UpdateUserDetailUseCase
 import com.atech.model.EducationDetails
 import com.atech.model.FilledForm
+import com.atech.model.LinkModel
 import com.atech.model.UpdateQueryUser
 import com.atech.utils.RoutePaths
 import com.atech.utils.fromJson
@@ -29,6 +30,7 @@ private const val hello = """
                 Created by Ayaan, Shakya and Vidhi
             </h1>
         </body>
+    </html>
 """
 
 @Serializable
@@ -118,7 +120,7 @@ private fun updateUserDetails(routing: Routing, application: Application) {
                     UpdateQueryUser.SkillListParam to call.request.queryParameters[UpdateQueryUser.SkillListParam.query]?.fromJson<List<String>>(),
                     UpdateQueryUser.FilledFormParam to call.request.queryParameters[UpdateQueryUser.FilledFormParam.query]?.fromJson<List<FilledForm>>(),
                     UpdateQueryUser.SelectedFormParam to call.request.queryParameters[UpdateQueryUser.SelectedFormParam.query]?.fromJson<List<String>>(),
-                    UpdateQueryUser.LinksParam to call.request.queryParameters[UpdateQueryUser.LinksParam.query]?.fromJson<List<String>>()
+                    UpdateQueryUser.LinksParam to call.request.queryParameters[UpdateQueryUser.LinksParam.query]?.fromJson<List<LinkModel>>()
                 ).forEach { (param, value) ->
                     if (value != null) {
                         val result = async { update(userID, param, value) }
