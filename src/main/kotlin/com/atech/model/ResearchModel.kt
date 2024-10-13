@@ -8,6 +8,8 @@ data class ResearchModel(
     val description: String = "",
     val author: String = "",
     val authorUid: String = "",
+    val authorEmail: String = "",
+    val authorPhoto: String = "",
     val tags: List<TagModel> = emptyList(),
     val questions: List<String> = emptyList(),
     val path: String = "",

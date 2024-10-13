@@ -4,10 +4,7 @@ import com.atech.firebase.FirebaseInstance
 import com.atech.firebase.GetUserDetailUseCase
 import com.atech.firebase.LogInUseCase
 import com.atech.firebase.UpdateUserDetailUseCase
-import com.atech.model.EducationDetails
-import com.atech.model.FilledForm
-import com.atech.model.LinkModel
-import com.atech.model.UpdateQueryUser
+import com.atech.model.*
 import com.atech.utils.RoutePaths
 import com.atech.utils.fromJson
 import com.google.cloud.firestore.WriteResult
@@ -169,7 +166,15 @@ fun Application.logIn() {
                     message = ErrorResponse("error: User not found or password is incorrect")
                 )
             } else {
-                call.respond(HttpStatusCode.OK, user)
+                call.respond(
+                    HttpStatusCode.OK, LoginResponse(
+                        uid = user.uid ?: "",
+                        email = user.email ?: "",
+                        name = user.displayName ?: "",
+                        photoUrl = user.photoUrl,
+                        userType = user.userType ?: UserType.STUDENT.name
+                    )
+                )
             }
         }
     }
