@@ -96,6 +96,7 @@ data class GetAllResearchUseCase(
                 .get()
                 .get()
                 .toObjects(ResearchModel::class.java)
+                .sortedByDescending { it.created }
         }
 }
 
