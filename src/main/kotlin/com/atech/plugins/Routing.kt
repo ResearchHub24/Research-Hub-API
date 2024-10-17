@@ -42,6 +42,7 @@ fun Application.allRoutes() {
     logIn()
     researchRouting()
     tagRouting()
+    researchApplication()
 }
 
 fun Application.configureRouting() {

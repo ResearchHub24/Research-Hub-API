@@ -9,5 +9,6 @@ enum class RoutePaths(val path: String) {
     POST_RESEARCH("$BASE/research/post"),
     DELETE_RESEARCH("$BASE/research/delete"),
     TAGS("${ALL_RESEARCH.path}/tags"),
+    SKILLS("${ALL_RESEARCH.path}/skills"),
 }
 
