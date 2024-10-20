@@ -4,6 +4,7 @@ enum class FirebaseCollectionPath(val path: String) {
     BASE("ResearchHub"),
     USERS("Users"),
     RESEARCH("Research"),
+    APPLICATIONS("Applications"),
 }
 
 enum class FirebaseDocumentPath(val path: String) {
@@ -11,7 +12,7 @@ enum class FirebaseDocumentPath(val path: String) {
 }
 
 enum class FirebaseRealtimeDatabasePath(
-    val path : String
+    val path: String
 ) {
     TAGS("tags")
 }

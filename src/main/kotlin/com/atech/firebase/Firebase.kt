@@ -1,5 +1,6 @@
 package com.atech.firebase
 
+import com.atech.model.ApplicationModel
 import com.atech.model.ResearchModel
 import com.atech.model.UpdateQueryUser
 import com.atech.model.UserModel
@@ -161,6 +162,25 @@ data class DeleteResearchUseCase(
                 .collection(FirebaseCollectionPath.RESEARCH.path)
                 .document(researchId)
                 .delete()
+                .get()
+        }
+}
+
+data class PostApplication(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend operator fun invoke(
+        researchId: String,
+        applicationModel: ApplicationModel
+    ): WriteResult? =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.RESEARCH.path)
+                .document(researchId)
+                .collection(FirebaseCollectionPath.APPLICATIONS.path)
+                .document(applicationModel.userUid)
+                .set(applicationModel)
                 .get()
         }
 }
