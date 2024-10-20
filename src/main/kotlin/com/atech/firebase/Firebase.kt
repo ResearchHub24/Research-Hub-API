@@ -174,6 +174,16 @@ data class PostApplication(
         applicationModel: ApplicationModel
     ): WriteResult? =
         withContext(Dispatchers.IO) {
+
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.USERS.path)
+                .document(applicationModel.userUid)
+                .collection(FirebaseCollectionPath.APPLICATIONS.path)
+                .document(researchId)
+                .set(applicationModel)
+                .get()
+
             db.collection(FirebaseCollectionPath.BASE.path)
                 .document(FirebaseDocumentPath.V1.path)
                 .collection(FirebaseCollectionPath.RESEARCH.path)
@@ -182,6 +192,42 @@ data class PostApplication(
                 .document(applicationModel.userUid)
                 .set(applicationModel)
                 .get()
+        }
+}
+
+data class GetAllFilledApplicationsUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend operator fun invoke(
+        researchId: String
+    ): List<ApplicationModel> =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.RESEARCH.path)
+                .document(researchId)
+                .collection(FirebaseCollectionPath.APPLICATIONS.path)
+                .get()
+                .get()
+                .toObjects(ApplicationModel::class.java)
+        }
+}
+
+data class GetAllFilledApplicationsStudentUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend operator fun invoke(
+        userUid: String
+    ): List<ApplicationModel> =
+        withContext(Dispatchers.IO) {
+            db.collection(FirebaseCollectionPath.BASE.path)
+                .document(FirebaseDocumentPath.V1.path)
+                .collection(FirebaseCollectionPath.USERS.path)
+                .document(userUid)
+                .collection(FirebaseCollectionPath.APPLICATIONS.path)
+                .get()
+                .get()
+                .toObjects(ApplicationModel::class.java)
         }
 }
 

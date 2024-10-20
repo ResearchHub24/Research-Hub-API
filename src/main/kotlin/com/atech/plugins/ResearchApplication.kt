@@ -1,5 +1,6 @@
 package com.atech.plugins
 
+import com.atech.firebase.GetAllFilledApplicationsStudentUseCase
 import com.atech.firebase.PostApplication
 import com.atech.model.ApplicationModel
 import com.atech.utils.RoutePaths
@@ -33,6 +34,27 @@ fun Application.researchApplication() {
                 postApplication.invoke(researchId, model)
                 call.respond(
                     HttpStatusCode.OK, SuccessResponse("Application submitted successfully")
+                )
+            } catch (e: Exception) {
+                call.respond(
+                    HttpStatusCode.InternalServerError, ErrorResponse("Error: ${e.message}")
+                )
+            }
+        }
+        get("${RoutePaths.POST_USER_DETAILS.path}/{userId}/applications") {
+            val userId = call.parameters["userId"]
+            if (userId == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest, ErrorResponse("User ID is missing")
+                )
+                return@get
+            }
+            val getUserApplications = GetAllFilledApplicationsStudentUseCase()
+
+            try {
+                val applications = getUserApplications.invoke(userId)
+                call.respond(
+                    HttpStatusCode.OK, applications
                 )
             } catch (e: Exception) {
                 call.respond(
