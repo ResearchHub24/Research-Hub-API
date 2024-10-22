@@ -178,6 +178,16 @@ data class IsAppliedInResearchUseCase(
     }
 }
 
+data class GetAllFacultyUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend operator fun invoke(): List<UserModel> = withContext(Dispatchers.IO) {
+        db.collection(FirebaseCollectionPath.BASE.path).document(FirebaseDocumentPath.V1.path)
+            .collection(FirebaseCollectionPath.USERS.path).whereEqualTo("userType", "TEACHER").get().get()
+            .toObjects(UserModel::class.java)
+    }
+}
+
 
 fun main() = runBlocking {
     val serviceAccountStream = this::class.java.classLoader.getResourceAsStream("serviceAccountKey.json")

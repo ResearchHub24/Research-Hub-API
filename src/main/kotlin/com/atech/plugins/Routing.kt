@@ -1,9 +1,6 @@
 package com.atech.plugins
 
-import com.atech.firebase.FirebaseInstance
-import com.atech.firebase.GetUserDetailUseCase
-import com.atech.firebase.LogInUseCase
-import com.atech.firebase.UpdateUserDetailUseCase
+import com.atech.firebase.*
 import com.atech.model.*
 import com.atech.utils.RoutePaths
 import com.atech.utils.fromJson
@@ -77,6 +74,18 @@ fun Application.userDetails() {
                 } else {
                     call.respond(HttpStatusCode.OK, user)
                 }
+            }
+        }
+        get("${RoutePaths.POST_USER_DETAILS.path}/faculty") {
+            try {
+                val getAllFaculty = GetAllFacultyUseCase()
+                val faculty = getAllFaculty()
+                call.respond(HttpStatusCode.OK, faculty)
+            } catch (e: Exception) {
+                call.respond(
+                    status = HttpStatusCode.InternalServerError,
+                    message = ErrorResponse("error: ${e.message}")
+                )
             }
         }
         updateUserDetails(this, application)
