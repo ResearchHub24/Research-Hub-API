@@ -31,5 +31,5 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    implementation("com.google.firebase:firebase-admin:9.3.0")
+    implementation("com.google.firebase:firebase-admin:9.4.1")
 }

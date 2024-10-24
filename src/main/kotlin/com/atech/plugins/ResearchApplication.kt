@@ -1,7 +1,7 @@
 package com.atech.plugins
 
 import com.atech.firebase.GetAllFilledApplicationsStudentUseCase
-import com.atech.firebase.IsAppliedInResearchUseCase
+import com.atech.firebase.GetAllFilledApplicationsUseCase
 import com.atech.firebase.PostApplication
 import com.atech.model.ApplicationModel
 import com.atech.utils.RoutePaths
@@ -63,7 +63,8 @@ fun Application.researchApplication() {
                 )
             }
         }
-        get("${RoutePaths.ALL_RESEARCH.path}/{researchId}/apply") {
+
+        get("${RoutePaths.ALL_RESEARCH.path}/{researchId}/applications") {
             val researchId = call.parameters["researchId"]
             if (researchId == null) {
                 call.respond(
@@ -72,15 +73,9 @@ fun Application.researchApplication() {
                 return@get
             }
             val userId = call.queryParameters["userId"]
-            if (userId == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest, ErrorResponse("User ID is missing")
-                )
-                return@get
-            }
-            val userCase = IsAppliedInResearchUseCase()
+            val userCase = GetAllFilledApplicationsUseCase()
             try {
-                val isApplied = userCase.invoke(researchId,userId)
+                val isApplied = userCase.invoke(researchId)
                 call.respond(
                     HttpStatusCode.OK, isApplied
                 )

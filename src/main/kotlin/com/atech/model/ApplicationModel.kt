@@ -9,8 +9,9 @@ data class ApplicationModel(
     val userUid: String = "",
     val userProfile: String = "",
     val researchId: String = "",
-    var researchTitle : String = "",
-    val selected : Boolean = false,
+    val userEmail: String = "",
+    var researchTitle: String = "",
+    val selected: Boolean = false,
     val answers: List<AnswerModel> = emptyList(),
     val created: Long = System.currentTimeMillis()
 )
