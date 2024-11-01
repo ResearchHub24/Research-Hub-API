@@ -1,9 +1,7 @@
 package com.atech.plugins
 
-import com.atech.firebase.GetAllFilledApplicationsStudentUseCase
-import com.atech.firebase.GetAllFilledApplicationsUseCase
-import com.atech.firebase.IsAppliedInResearchUseCase
-import com.atech.firebase.PostApplication
+import com.atech.firebase.*
+import com.atech.model.Action
 import com.atech.model.ApplicationModel
 import com.atech.utils.RoutePaths
 import com.atech.utils.Skills
@@ -36,6 +34,41 @@ fun Application.researchApplication() {
                 postApplication.invoke(researchId, model)
                 call.respond(
                     HttpStatusCode.OK, SuccessResponse("Application submitted successfully")
+                )
+            } catch (e: Exception) {
+                call.respond(
+                    HttpStatusCode.InternalServerError, ErrorResponse("Error: ${e.message}")
+                )
+            }
+        }
+        put("${RoutePaths.ALL_RESEARCH.path}/{researchId}/status") {
+            val researchId = call.parameters["researchId"]
+            if (researchId == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest, ErrorResponse("Research ID is missing")
+                )
+                return@put
+            }
+            val userUid = call.queryParameters["userUid"]
+            if (userUid == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest, ErrorResponse("User ID is missing")
+                )
+                return@put
+            }
+            val action = call.queryParameters["action"]
+            if (action == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest, ErrorResponse("Action is missing")
+                )
+                return@put
+            }
+            val actionEnum = Action.valueOf(action)
+            val changeApplicationStatus = ChangeApplicationStatus()
+            try {
+                changeApplicationStatus.invoke(researchId, userUid, actionEnum)
+                call.respond(
+                    HttpStatusCode.OK, SuccessResponse("Application status updated successfully")
                 )
             } catch (e: Exception) {
                 call.respond(
@@ -112,5 +145,6 @@ fun Application.researchApplication() {
                 )
             }
         }
+
     }
 }
