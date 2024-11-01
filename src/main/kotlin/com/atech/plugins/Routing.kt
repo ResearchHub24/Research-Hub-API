@@ -40,6 +40,7 @@ fun Application.allRoutes() {
     researchRouting()
     tagRouting()
     researchApplication()
+    sendNotification()
 }
 
 fun Application.configureRouting() {

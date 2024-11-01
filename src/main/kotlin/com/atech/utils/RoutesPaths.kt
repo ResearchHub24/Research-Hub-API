@@ -10,6 +10,7 @@ enum class RoutePaths(val path: String) {
     DELETE_RESEARCH("$BASE/research/delete"),
     TAGS("${ALL_RESEARCH.path}/tags"),
     SKILLS("${ALL_RESEARCH.path}/skills"),
-
+    SEND_NOTIFICATION("$BASE/notification"),
+    Topics(SEND_NOTIFICATION.path + "/topics")
 }
 
