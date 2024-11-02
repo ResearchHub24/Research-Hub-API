@@ -11,7 +11,6 @@ data class ApplicationModel(
     val researchId: String = "",
     val userEmail: String = "",
     var researchTitle: String = "",
-    val selected: Boolean = false,
     val answers: List<AnswerModel> = emptyList(),
     val action: Action = Action.PENDING,
     val created: Long = System.currentTimeMillis()
