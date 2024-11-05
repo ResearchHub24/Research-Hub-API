@@ -5,6 +5,7 @@ import com.atech.utils.FirebaseCollectionPath
 import com.atech.utils.FirebaseDocumentPath
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.firestore.Firestore
+import com.google.cloud.firestore.Query
 import com.google.cloud.firestore.WriteResult
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -277,6 +278,23 @@ data class SendMessageUseCase(
     }
 }
 
+data class GetAllMessagesUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend operator fun invoke(
+        path: String
+    ): List<MessageModel> = withContext(Dispatchers.IO) {
+        db.collection(FirebaseCollectionPath.BASE.path)
+            .document(FirebaseDocumentPath.V1.path)
+            .collection(FirebaseCollectionPath.FORUM.path)
+            .document(path)
+            .collection(FirebaseCollectionPath.MESSAGES.path)
+            .orderBy("created", Query.Direction.DESCENDING)
+            .get()
+            .get()
+            .toObjects(MessageModel::class.java)
+    }
+}
 
 fun main() = runBlocking {
     val serviceAccountStream = this::class.java.classLoader.getResourceAsStream("serviceAccountKey.json")
