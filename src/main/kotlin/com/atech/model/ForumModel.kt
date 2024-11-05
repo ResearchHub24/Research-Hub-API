@@ -6,23 +6,25 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ForumRequest(
     val forumModel: ForumModel,
-    val message: MessageModel?
+    val message: MessageModel? = null
 )
 
 
 @Serializable
 data class ForumModel(
-    val createdChatUid: String,
-    val createdChatUserName: String,
-    val createdChatUserEmail: String,
-    val createdChatProfileUrl: String,
+    val createdChatUid: String = "",
+    val createdChatUserName: String = "",
+    val createdChatUserEmail: String = "",
+    val createdChatProfileUrl: String = "",
+    val createdUnreadMessageCount: Int = 0,
 
-    val receiverChatUid: String,
-    val receiverChatUserName: String,
-    val receiverChatUserEmail: String,
-    val receiverChatProfileUrl: String,
+    val receiverChatUid: String = "",
+    val receiverChatUserName: String = "",
+    val receiverChatUserEmail: String = "",
+    val receiverChatProfileUrl: String = "",
+    val receiverUnreadMessageCount: Int = 0,
 
-    val path: String,
+    val path: String = "",
     val created: Long = System.currentTimeMillis()
 )
 
@@ -32,11 +34,11 @@ fun ForumModel.getPath() =
 
 @Serializable
 data class MessageModel(
-    val senderName: String,
-    val senderUid: String,
-    val receiverName: String,
-    val receiverUid: String,
-    val message: String,
-    val path: String,
+    val senderName: String = "",
+    val senderUid: String = "",
+    val receiverName: String = "",
+    val receiverUid: String = "",
+    val message: String = "",
+    val path: String = "",
     val created: Long = System.currentTimeMillis()
 )

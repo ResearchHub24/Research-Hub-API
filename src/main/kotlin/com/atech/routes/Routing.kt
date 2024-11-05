@@ -41,7 +41,7 @@ fun Application.allRoutes() {
     tagRouting()
     researchApplication()
     sendNotification()
-    sendMessage()
+    forumRoutes()
 }
 
 fun Application.configureRouting() {

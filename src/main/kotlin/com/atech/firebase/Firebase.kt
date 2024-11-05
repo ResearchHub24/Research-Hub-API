@@ -228,12 +228,9 @@ data class GetAllForumUseCase(
         db.collection(FirebaseCollectionPath.BASE.path)
             .document(FirebaseDocumentPath.V1.path)
             .collection(FirebaseCollectionPath.FORUM.path)
-            .also {
-                if (forFaculties)
-                    it.whereEqualTo("createdChatUid", uid)
-                else
-                    it.whereEqualTo("receiverChatUid", uid)
-            }
+            .whereEqualTo(
+                if (forFaculties) "createdChatUid" else "receiverChatUid", uid
+            )
             .get()
             .get()
             .toObjects(ForumModel::class.java)

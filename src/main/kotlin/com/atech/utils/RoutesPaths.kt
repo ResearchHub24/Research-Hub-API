@@ -13,6 +13,6 @@ enum class RoutePaths(val path: String) {
     SEND_NOTIFICATION("$BASE/notification"),
     Topics(SEND_NOTIFICATION.path + "/topics"),
     FORUM("$BASE/forum"),
-    MESSAGES("${FORUM}/messages"),
+    MESSAGES("${FORUM.path}/messages"),
 }
 
