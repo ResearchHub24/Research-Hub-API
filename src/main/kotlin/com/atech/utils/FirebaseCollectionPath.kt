@@ -5,6 +5,8 @@ enum class FirebaseCollectionPath(val path: String) {
     USERS("Users"),
     RESEARCH("Research"),
     APPLICATIONS("Applications"),
+    FORUM("Forum"),
+    MESSAGES("Messages")
 }
 
 enum class FirebaseDocumentPath(val path: String) {

@@ -11,6 +11,8 @@ enum class RoutePaths(val path: String) {
     TAGS("${ALL_RESEARCH.path}/tags"),
     SKILLS("${ALL_RESEARCH.path}/skills"),
     SEND_NOTIFICATION("$BASE/notification"),
-    Topics(SEND_NOTIFICATION.path + "/topics")
+    Topics(SEND_NOTIFICATION.path + "/topics"),
+    FORUM("$BASE/forum"),
+    MESSAGES("${FORUM}/messages"),
 }
 

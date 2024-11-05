@@ -1,6 +1,6 @@
 package com.atech
 
-import com.atech.plugins.*
+import com.atech.routes.configureRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

@@ -217,6 +217,67 @@ data class GetAllFacultyUseCase(
 }
 
 
+data class GetAllForumUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend operator fun invoke(
+        uid: String,
+        forFaculties: Boolean
+    ): List<ForumModel> = withContext(Dispatchers.IO) {
+        db.collection(FirebaseCollectionPath.BASE.path)
+            .document(FirebaseDocumentPath.V1.path)
+            .collection(FirebaseCollectionPath.FORUM.path)
+            .also {
+                if (forFaculties)
+                    it.whereEqualTo("createdChatUid", uid)
+                else
+                    it.whereEqualTo("receiverChatUid", uid)
+            }
+            .get()
+            .get()
+            .toObjects(ForumModel::class.java)
+    }
+}
+
+data class CreateForumUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore(),
+    val sendMessage: SendMessageUseCase = SendMessageUseCase()
+) {
+    suspend operator fun invoke(
+        forumModel: ForumModel,
+        message: MessageModel? = null
+    ): WriteResult = withContext(Dispatchers.IO) {
+        val writeResult = db.collection(FirebaseCollectionPath.BASE.path)
+            .document(FirebaseDocumentPath.V1.path)
+            .collection(FirebaseCollectionPath.FORUM.path)
+            .document(forumModel.getPath())
+            .set(forumModel)
+            .get()
+        message?.let {
+            sendMessage.invoke(forumModel.getPath(), message)
+        } ?: writeResult
+    }
+}
+
+data class SendMessageUseCase(
+    val db: Firestore = FirebaseInstance
+        .getFirebaseFireStore(),
+) {
+    suspend operator fun invoke(
+        path: String,
+        message: MessageModel
+    ): WriteResult = withContext(Dispatchers.IO) {
+        val ref = db.collection(FirebaseCollectionPath.BASE.path)
+            .document(FirebaseDocumentPath.V1.path)
+            .collection(FirebaseCollectionPath.FORUM.path)
+            .document(path)
+            .collection(FirebaseCollectionPath.MESSAGES.path)
+            .document()
+        ref.set(message.copy(path = ref.id)).get()
+    }
+}
+
+
 fun main() = runBlocking {
     val serviceAccountStream = this::class.java.classLoader.getResourceAsStream("serviceAccountKey.json")
     val option = FirebaseOptions.builder().setDatabaseUrl("https://researchhub-21392-default-rtdb.firebaseio.com")

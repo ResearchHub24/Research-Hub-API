@@ -1,4 +1,4 @@
-package com.atech.plugins
+package com.atech.routes
 
 import com.atech.model.NotificationModel
 import com.atech.model.Type

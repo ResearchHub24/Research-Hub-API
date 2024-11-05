@@ -1,4 +1,4 @@
-package com.atech.plugins
+package com.atech.routes
 
 import com.atech.firebase.AddTagUseCase
 import com.atech.firebase.DeleteTagUseCase

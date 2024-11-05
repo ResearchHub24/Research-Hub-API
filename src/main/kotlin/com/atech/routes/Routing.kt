@@ -1,4 +1,4 @@
-package com.atech.plugins
+package com.atech.routes
 
 import com.atech.firebase.*
 import com.atech.model.*
@@ -41,6 +41,7 @@ fun Application.allRoutes() {
     tagRouting()
     researchApplication()
     sendNotification()
+    sendMessage()
 }
 
 fun Application.configureRouting() {
