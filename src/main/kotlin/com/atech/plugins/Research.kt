@@ -55,6 +55,35 @@ fun Application.researchRouting() {
             }
         }
 
+        get("${RoutePaths.ALL_RESEARCH.path}/{researchPath}") {
+            val researchPath = call.parameters["researchPath"]
+            if (researchPath == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse("{error: Research path is missing}")
+                )
+                return@get
+            }
+            try {
+                val research = GetResearchByIdUseCase(
+                    db = FirebaseInstance.getFirebaseFireStore()
+                ).invoke(researchPath)
+                if (research == null) {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        ErrorResponse("{error: Research not found}")
+                    )
+                    return@get
+                }
+                call.respond(HttpStatusCode.OK, research)
+            } catch (e: Exception) {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    ErrorResponse("{error: ${e.message}}")
+                )
+            }
+        }
+
         post(RoutePaths.POST_RESEARCH.path) {
             try {
                 val model = call.receive<ResearchModel>()

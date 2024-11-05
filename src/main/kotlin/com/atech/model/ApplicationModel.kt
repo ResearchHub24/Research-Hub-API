@@ -19,7 +19,7 @@ data class ApplicationModel(
 @Serializable
 data class AnswerModel(
     val question: String = "",
-    val answer: String = "",
+    val answer: String = "",    
 )
 
 @Serializable

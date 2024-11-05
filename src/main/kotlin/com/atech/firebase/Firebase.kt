@@ -74,6 +74,17 @@ data class GetAllResearchUseCase(
     }
 }
 
+
+data class GetResearchByIdUseCase(
+    val db: Firestore = FirebaseInstance.getFirebaseFireStore()
+) {
+    suspend fun invoke(researchId: String): ResearchModel? = withContext(Dispatchers.IO) {
+        db.collection(FirebaseCollectionPath.BASE.path).document(FirebaseDocumentPath.V1.path)
+            .collection(FirebaseCollectionPath.RESEARCH.path).document(researchId).get().get()
+            .toObject(ResearchModel::class.java)
+    }
+}
+
 data class PostResearchUseCase(
     val db: Firestore
 ) {
