@@ -24,7 +24,6 @@ data class ForumModel(
     val receiverChatProfileUrl: String = "",
     val receiverUnreadMessageCount: Int = 0,
 
-    val path: String = "",
     val created: Long = System.currentTimeMillis()
 )
 

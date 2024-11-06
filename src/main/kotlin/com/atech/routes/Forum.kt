@@ -84,7 +84,7 @@ fun Application.forumRoutes() {
                 )
             }
         }
-        post("${RoutePaths.MESSAGES.path}/post") {
+        post("${RoutePaths.MESSAGES.path}/post/{path}") {
             try {
                 val path = call.parameters["path"]
                 if (path == null) {
